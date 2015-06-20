@@ -11,83 +11,42 @@
 ## The first function, makeCacheMatrix, makes a list of functions. One can use those
 ## to set a matrix (set), see the stored matrix (get), set an inverted matrix 
 ## (setsolve) or see the stored inverted matrix (getsolve).
-## To use those functions one should run the makeCacheMatrix function on a square
-## matrix (it works properly if one creates the data set first and use it's name
-## as an argument, like this:
-## x <- matrix(1:4, 2, 2)
-## z <- makeCacheMatrix(x))
-## Then one should subset a function to use it, like this:
-## z$get() - that would show the contains of x matrix.
-
-### вопрос остался - как напрямую задать матрицу.
+## To use those functions one should make an object by running the makeCacheMatrix 
+## function on a square matrix.
+## Then one should subset a function to use it.
 
 makeCacheMatrix <- function(x = matrix()) {
-#needs to be done properly - upd так вроде работает
- # changed <- FALSE #это нинада! все равно при изменении инв обнуляетсо
+
   inv <- NULL
   set <- function (y) {
     x <<- y
     inv <<- NULL
-    #changed <- TRUE
-  }
-  get <- function() x #works fine
-  setsolve <- function(solve) inv <<- solve #не проверяла upd вроде работает
-  #setsolve <- function() {
-  #  inv <<- solve(x)
-  # 
-  #}
-    #works fine но надо переделать: солв 
-  #будет задаваться в следующей функции, тут просто переменная. либо коннектить его сюда
-  getsolve <- function() inv #works fine
+  } #sets the stored matrix
+  get <- function() x #shows the stored matrix
+  setinverse <- function(inverse) inv <<- inverse #sets the inversed matrix
+  getinverse <- function() inv #shows the inversed matrix
 
-  list(set = set, get = get, setsolve = setsolve, getsolve = getsolve)
+  list(set = set, get = get, setinverse = setinverse, getinverse = getinverse)
 }
 
 
-## Write a short comment describing this function
+## The second function, cacheSolve, checks if there is a cached inversed matrix and 
+## if there was no changes made to the "source" matrix. If there is a cached value,
+## the function returns it. If there is not any (that might mean that inversed matrix
+## is not yet calculated or that the "source" matrix is changed) than the function 
+## computes the inversed matrix.
 
 cacheSolve <- function(x, ...) {
-  inv <- x$getsolve()
-  
-  #if(!is.null(inv) & x == x$get()) { ##тут надо посмотреть что сравниваем
-  if(!is.null(inv)) { #вроде работает, но надо проверить условие про неизменность матрицы
+  inv <- x$getinverse()
+  if(!is.null(inv)) { 
     message("getting cached data")
     return(inv)
-  }
-  #вроде работает
+  } #returns the inversed matrix if there is a cached one
   
   message("computing...")
   data <- x$get()
   inv <- solve(data)
-  x$setsolve(inv)
-  inv
+  x$setinverse(inv)
+  inv #computes the inversed matrix if there isn't any cached
 }
-        ## Return a matrix that is the inverse of 'x'
-
-
-
-makeVector <- function(x = numeric()) {
-  m <- NULL
-  set <- function(y) {
-    x <<- y
-    m <<- NULL
-  }
-  get <- function() x
-  setmean <- function(mean) m <<- mean
-  getmean <- function() m
-  list(set = set, get = get,
-       setmean = setmean,
-       getmean = getmean)
-}
-
-cachemean <- function(x, ...) {
-  m <- x$getmean()
-  if(!is.null(m)) {
-    message("getting cached data")
-    return(m)
-  }
-  data <- x$get()
-  m <- mean(data, ...)
-  x$setmean(m)
-  m
-}
+     
